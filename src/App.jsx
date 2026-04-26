@@ -2,9 +2,10 @@
 
 function App() {
   return (
-    <div style={{ padding: '40px', maxWidth: '800px', margin: '0 auto' }}>
-      
-    </div>
+    //Put HTML here to display whatever components we want to display
+    <p>Test</p>
+
+
   )
 }
 
