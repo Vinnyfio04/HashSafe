@@ -34,8 +34,17 @@ fetch("https://jsonplaceholder.typicode.com/posts", {
   });
 
 // GET /hash/:id – Gets a hash record
-
-
+fetch("https://jsonplaceholder.typicode.com/posts/1")
+  .then((response) => {
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      return response.json();
+  })
+  .then((data) => {
+      console.log("Retrieved Hash:", data.hash);
+  })
+  .catch((error) => {
+      console.error("Error:", error.message);
+  });
 
 // GET /hash/content/:contentId – Gets hashes for content
 
