@@ -1,5 +1,15 @@
+import crypto from 'crypto';
+import express from 'express';
+import { v4 as uuidv4 } from 'uuid';
 
+const router = express.Router();
 
+const hashes = []; // In-memory storage for hashes
+
+function generateHash(data) {
+    return crypto.createHash
+    ('sha256').update(data).digest('hex');
+}
 
 // POST /hash/generate – Generates a hash
 
@@ -34,3 +44,6 @@
 
 
 // GET /hash/recent – Get recent hashes
+
+
+module.exports = generateHash;
