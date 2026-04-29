@@ -12,8 +12,26 @@ function generateHash(data) {
 }
 
 // POST /hash/generate – Generates a hash
-
-
+fetch("https://jsonplaceholder.typicode.com/posts", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    input: document.getElementById("inputData").value,
+    type: document.getElementById("hashType").value,
+    id: uuidv4() // Generate a unique ID for the hash record 
+  })
+})
+  .then((response) => {
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      return response.json();
+  })
+  .then((data) => {
+      console.log("Generated Hash:", data.hash);
+        // Optionally, you can store the hash in the in-memory array - TAB
+  })
+  .catch((error) => {
+      console.error("Error:", error.message);
+  });
 
 // GET /hash/:id – Gets a hash record
 
