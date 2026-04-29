@@ -62,7 +62,26 @@ fetch("https://jsonplaceholder.typicode.com/posts/1")
 
 
 // POST /hash/batch – Hashes several items at a time 
-
+fetch("https://jsonplaceholder.typicode.com/posts/batch", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    items: [
+      { input: "data1", type: "sha256" },
+      { input: "data2", type: "md5" }
+    ]
+  })
+})
+  .then((response) => {
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      return response.json();
+  })
+  .then((data) => {
+      console.log("Batch Hash Results:", data.hashes);
+  })
+  .catch((error) => {
+      console.error("Error:", error.message);
+  });
 
 
 // GET /hash/type/:type – Filters by hash type
@@ -81,7 +100,16 @@ fetch("https://jsonplaceholder.typicode.com/posts/1")
 
 
 // DELETE /hash/:id – Deletes a hash
-
+fetch("https://jsonplaceholder.typicode.com/posts/1", {
+  method: "DELETE"
+})
+  .then((response) => {
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      console.log("Hash deleted successfully");
+  })
+  .catch((error) => {
+      console.error("Error:", error.message);
+  });
 
 
 // GET /hash/:hash/value – Search by hash value
@@ -124,6 +152,6 @@ fetch("https://jsonplaceholder.typicode.com/posts/1")
   .catch((error) => {
       console.error("Error:", error.message);
   });
-  
+
 
 export default generateHash;
