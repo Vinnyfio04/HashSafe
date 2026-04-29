@@ -1,4 +1,4 @@
-
+const express = require("express");
 const router = express.Router();
 const generateHash = require('../utils/hashGenerator');
 
@@ -67,3 +67,5 @@ const generateHash = require('../utils/hashGenerator');
 
 
 // GET /content/user/:userId/metadata/type/:type – Filters metadata by type for a specific user
+
+module.exports = router;

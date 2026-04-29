@@ -1,10 +1,10 @@
-import express from "express";
+const express = require("express");
 const app = express();
 app.use(express.json());
 const PORT = 3000;
 
 // Routers
-import contentRouter from "./routers/content.cjs";
+const contentRouter = require("./routers/content.cjs");
 
 // Routes
 app.use("/content", contentRouter)
