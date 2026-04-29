@@ -4,7 +4,7 @@ app.use(express.json());
 const PORT = 3000;
 
 // Routers
-import contentRouter from "./routers/content.js";
+import contentRouter from "./routers/content.cjs";
 
 // Routes
 app.use("/content", contentRouter)
