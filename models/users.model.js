@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
@@ -6,10 +6,10 @@ const userSchema = new mongoose.Schema(
     name: { type: String, required: true },
 
     // min: number cannot be below 0
-    age: { type: Number, required: true, min: 0 },
+    username: { type: String, required: true },
 
     // default: value used when field is omitted
-    major: { type: String, default: "Undeclared" },
+    password: { type: String, required: true },
   },
   { versionKey: false } // hides the __v field from output
 );
@@ -17,4 +17,4 @@ const userSchema = new mongoose.Schema(
 // "Student" → lowercase → pluralize → "students" collection
 const User = mongoose.model("User", userSchema);
 
-module.exports = Student;
+export default User;
