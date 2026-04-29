@@ -66,7 +66,18 @@ fetch("https://jsonplaceholder.typicode.com/posts/1")
 
 
 // GET /hash/type/:type – Filters by hash type
-
+fetch("https://jsonplaceholder.typicode.com/posts/1")
+  .then((response) => {
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      return response.json();
+  })
+  .then((data) => {
+      console.log("Hashes of Type:", data.hashes);
+      console.log("Hash Type:", data.type);
+  })
+  .catch((error) => {
+      console.error("Error:", error.message);
+  });
 
 
 // DELETE /hash/:id – Deletes a hash
