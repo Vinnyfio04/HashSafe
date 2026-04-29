@@ -47,7 +47,18 @@ fetch("https://jsonplaceholder.typicode.com/posts/1")
   });
 
 // GET /hash/content/:contentId – Gets hashes for content
-
+fetch("https://jsonplaceholder.typicode.com/posts/1")
+  .then((response) => {
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      return response.json();
+  })
+  .then((data) => {
+      console.log("Hashes for Content:", data.hashes);
+      console.log("Content ID:", data.contentID);
+  })
+  .catch((error) => {
+      console.error("Error:", error.message);
+  });
 
 
 // POST /hash/batch – Hashes several items at a time 
