@@ -9,3 +9,8 @@ This type of technology is needed in the near future due to the rapid evolution 
 
 Test
 hi
+
+How to run:
+
+Run front end (react): "npm run dev"
+Run server: "npm run server"
