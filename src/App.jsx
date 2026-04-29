@@ -1,9 +1,9 @@
-
+import Test from './components/test'
 
 function App() {
   return (
     //Put HTML here to display whatever components we want to display
-    <p>Test</p>
+    <Test />
 
 
   )
