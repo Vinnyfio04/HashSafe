@@ -85,7 +85,17 @@ fetch("https://jsonplaceholder.typicode.com/posts/1")
 
 
 // GET /hash/:hash/value – Search by hash value
-
+fetch("https://jsonplaceholder.typicode.com/posts/1")
+  .then((response) => {
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      return response.json();
+  })
+  .then((data) => {
+      console.log("Search Result for Hash Value:", data.hash);
+  })
+  .catch((error) => {
+      console.error("Error:", error.message);
+  });
 
 
 // GET /hash/stats – Get hash statistics
