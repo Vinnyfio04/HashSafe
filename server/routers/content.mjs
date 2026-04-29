@@ -1,6 +1,6 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const generateHash = require('../utils/hashGenerator');
+import generateHash from '../utils/hashGenerator.js';
 
 //POST /content – Uploads content
 
@@ -68,4 +68,4 @@ const generateHash = require('../utils/hashGenerator');
 
 // GET /content/user/:userId/metadata/type/:type – Filters metadata by type for a specific user
 
-module.exports = router;
+export default router;
