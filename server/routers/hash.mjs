@@ -99,9 +99,31 @@ fetch("https://jsonplaceholder.typicode.com/posts/1")
 
 
 // GET /hash/stats – Get hash statistics
-
+fetch("https://jsonplaceholder.typicode.com/posts/1")
+  .then((response) => {
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      return response.json();
+  })
+  .then((data) => {
+      console.log("Hash Statistics:", data.stats);
+  })
+  .catch((error) => {
+      console.error("Error:", error.message);
+  });
 
 
 // GET /hash/recent – Get recent hashes
+fetch("https://jsonplaceholder.typicode.com/posts/1")
+  .then((response) => {
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      return response.json();
+  })
+  .then((data) => {
+      console.log("Recent Hashes:", data.hashes);
+  })
+  .catch((error) => {
+      console.error("Error:", error.message);
+  });
+  
 
 export default generateHash;
