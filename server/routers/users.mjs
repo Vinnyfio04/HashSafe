@@ -1,49 +1,62 @@
-import { createServer } from 'node:http';
-import connectDB  from '../config/db';
-import User from '../../models/users.model';
+import express from "express";
+import User from "../../models/users.model.js";
+const router = express.Router();
 
-const PORT = 3000;
-
-function json(res, status, payload) {
-    res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
-    res.end(JSON.stringify(payload));
-  }
-  function notFound(res) { return json(res, 404, { error: 'Not found' }); }
-
-  function readBody(req) { // NEW: bring body parsing back (we need POST)
-    return new Promise((resolve, reject) => {
-      let data = '';
-      req.on('data', (chunk) => (data += chunk));
-      req.on('end', () => resolve(data));
-      req.on('error', reject);
-    });
-  }
-
-  function parseId(pathname) { // NEW: support /users/:id
-    const parts = pathname.split('/').filter(Boolean);
-    if (parts.length !== 2) return null;
-    const id = Number(parts[1]);
-    return Number.isFinite(id) ? id : null;
-  }
-
-  createServer(async (req, res) => {
-    const url = new URL(req.url, 'http://localhost');
-  
-
+//copied from Mongoose and express slides 
 
 // DELETE /users/:id – Delete user account
-
+router.delete("/:id", async (req, res) => {
+    try {
+      const user = await User.findByIdAndDelete(req.params.id);
+      if (!user) return res.status(404).json({ error: "Not found" });
+      res.json({ message: "Deleted successfully", user });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
 
 
 // PUT /users/:id – Updates a user
-
+router.put("/:id", async (req, res) => {
+    try {
+      const user = await User.findByIdAndUpdate(
+        req.params.id,
+        { $set: req.body },
+        { new: true } // return the updated doc, not the old one
+      );
+      if (!user) return res.status(404).json({ error: "Not found" });
+      res.json(user);
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  });
 
 
 // GET /users/:id – Gets a users profile (1 profile)
-
+router.get("/:id", async (req, res)=>{
+    try{
+        const user = await User.findById(
+            req.params.id,
+        );
+        if (!user) return res.status(404).json({ error: "Not found" });
+        res.json(user);
+    }catch (err){
+        res.status(400).json({error: err.message});
+    }
+   
+})
 
 
 // GET /users – Lists users (many)
-    
-  })
+router.get("/", async (req, res) => {
+    try {
+      const users = await User.find();
+      res.json(users);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });  
+  
+  export default router;
+
 
