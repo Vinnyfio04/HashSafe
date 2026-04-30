@@ -2,156 +2,145 @@ import crypto from 'crypto';
 import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
+
 const router = express.Router();
+
 
 const hashes = []; // In-memory storage for hashes
 
+
 function generateHash(data) {
-    return crypto.createHash
-    ('sha256').update(data).digest('hex');
+   return crypto.createHash
+   ('sha256').update(data).digest('hex');
 }
 
+
 // POST /hash/generate – Generates a hash
-fetch("https://jsonplaceholder.typicode.com/posts", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    input: document.getElementById("inputData").value,
-    type: document.getElementById("hashType").value,
-    id: uuidv4() // Generate a unique ID for the hash record 
-  })
-})
-  .then((response) => {
-      if (!response.ok) throw new Error("HTTP " + response.status);
-      return response.json();
-  })
-  .then((data) => {
-      console.log("Generated Hash:", data.hash);
-        // Optionally, you can store the hash in the in-memory array - TAB
-  })
-  .catch((error) => {
-      console.error("Error:", error.message);
-  });
+router.post("/generate", (req, res) => {
+   const { input, type } = req.body;
+   if (!input || !type) {
+       return res.status(400).json({ error: "Input and type are required" });
+   }
+   try {
+       const hash = generateHash(input);
+       const hashRecord = { id: uuidv4(), hash, type, contentID: null };
+       hashes.push(hashRecord); // Store the hash record in memory
+       res.json({ hash });
+   } catch (err) {
+       res.status(500).json({ error: err.message });
+   }
+});
+
 
 // GET /hash/:id – Gets a hash record
-fetch("https://jsonplaceholder.typicode.com/posts/1")
-  .then((response) => {
-      if (!response.ok) throw new Error("HTTP " + response.status);
-      return response.json();
-  })
-  .then((data) => {
-      console.log("Retrieved Hash:", data.hash);
-  })
-  .catch((error) => {
-      console.error("Error:", error.message);
-  });
-
-// GET /hash/content/:contentId – Gets hashes for content
-fetch("https://jsonplaceholder.typicode.com/posts/1")
-  .then((response) => {
-      if (!response.ok) throw new Error("HTTP " + response.status);
-      return response.json();
-  })
-  .then((data) => {
-      console.log("Hashes for Content:", data.hashes);
-      console.log("Content ID:", data.contentID);
-  })
-  .catch((error) => {
-      console.error("Error:", error.message);
-  });
+router.get("/:id", (req, res) => {
+   const hashRecord = hashes.find(h => h.id === req.params.id);
+   if (!hashRecord) {
+       return res.status(404).json({ error: "Hash not found" });
+   }
+   res.json(hashRecord);
+});
 
 
-// POST /hash/batch – Hashes several items at a time 
-fetch("https://jsonplaceholder.typicode.com/posts/batch", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    items: [
-      { input: "data1", type: "sha256" },
-      { input: "data2", type: "md5" }
-    ]
-  })
-})
-  .then((response) => {
-      if (!response.ok) throw new Error("HTTP " + response.status);
-      return response.json();
-  })
-  .then((data) => {
-      console.log("Batch Hash Results:", data.hashes);
-  })
-  .catch((error) => {
-      console.error("Error:", error.message);
-  });
+// // GET /hash/content/:contentId – Gets hashes for content
+router.get("/content/:contentId", (req, res) => {
+   const hashRecords = hashes.filter(h => h.contentID === req.params.contentId);
+   res.json(hashRecords);
+});
+
+
+// GET /hash/:id – Gets a hash record
+router.get("/:id", (req, res) => {
+   const hashRecord = hashes.find(h => h.id === req.params.id);
+   if (!hashRecord) {
+       return res.status(404).json({ error: "Hash not found" });
+   }
+   res.json(hashRecord);
+});
+
+
+
+
+// POST /hash/batch – Hashes several items at a time
+router.post("/batch", (req, res) => {
+   const { items } = req.body;
+   if (!items || !Array.isArray(items)) {
+       return res.status(400).json({ error: "Items array is required" });
+   }
+   try {
+       const results = items.map(({ input, type }) => {
+           const hash = generateHash(input);
+           const hashRecord = { id: uuidv4(), hash, type, contentID: null };
+           hashes.push(hashRecord); // Store the hash record in memory
+           return { input, type, hash };
+       });
+       res.json({ hashes: results });
+   } catch (err) {
+       res.status(500).json({ error: err.message });
+   }
+});
+
+
 
 
 // GET /hash/type/:type – Filters by hash type
-fetch("https://jsonplaceholder.typicode.com/posts/1")
-  .then((response) => {
-      if (!response.ok) throw new Error("HTTP " + response.status);
-      return response.json();
-  })
-  .then((data) => {
-      console.log("Hashes of Type:", data.hashes);
-      console.log("Hash Type:", data.type);
-  })
-  .catch((error) => {
-      console.error("Error:", error.message);
-  });
+router.get("/type/:type", (req, res) => {
+   const hashRecords = hashes.filter(h => h.type === req.params.type);
+   res.json(hashRecords);
+});
+
+
 
 
 // DELETE /hash/:id – Deletes a hash
-fetch("https://jsonplaceholder.typicode.com/posts/1", {
-  method: "DELETE"
-})
-  .then((response) => {
-      if (!response.ok) throw new Error("HTTP " + response.status);
-      console.log("Hash deleted successfully");
-  })
-  .catch((error) => {
-      console.error("Error:", error.message);
-  });
+router.delete("/:id", (req, res) => {
+   const index = hashes.findIndex(h => h.id === req.params.id);
+   if (index === -1) {
+       return res.status(404).json({ error: "Hash not found" });
+   }
+   const deletedHash = hashes.splice(index, 1)[0]; // Remove from array and get deleted record
+   res.json({ message: "Deleted successfully", hash: deletedHash });
+});
+
+
 
 
 // GET /hash/:hash/value – Search by hash value
-fetch("https://jsonplaceholder.typicode.com/posts/1")
-  .then((response) => {
-      if (!response.ok) throw new Error("HTTP " + response.status);
-      return response.json();
-  })
-  .then((data) => {
-      console.log("Search Result for Hash Value:", data.hash);
-  })
-  .catch((error) => {
-      console.error("Error:", error.message);
-  });
+router.get("/:hash/value", (req, res) => {
+   const hashRecord = hashes.find(h => h.hash === req.params.hash);
+   if (!hashRecord) {
+       return res.status(404).json({ error: "Hash not found" });
+   }
+   res.json(hashRecord);
+});
+
+
 
 
 // GET /hash/stats – Get hash statistics
-fetch("https://jsonplaceholder.typicode.com/posts/1")
-  .then((response) => {
-      if (!response.ok) throw new Error("HTTP " + response.status);
-      return response.json();
-  })
-  .then((data) => {
-      console.log("Hash Statistics:", data.stats);
-  })
-  .catch((error) => {
-      console.error("Error:", error.message);
-  });
+router.get("/stats", (req, res) => {
+   const totalHashes = hashes.length;
+   const typesCount = {};
+   hashes.forEach(h => {
+       typesCount[h.type] = (typesCount[h.type] || 0) + 1;
+   });
+   res.json({ totalHashes, typesCount });
+});
+
+
 
 
 // GET /hash/recent – Get recent hashes
-fetch("https://jsonplaceholder.typicode.com/posts/1")
-  .then((response) => {
-      if (!response.ok) throw new Error("HTTP " + response.status);
-      return response.json();
-  })
-  .then((data) => {
-      console.log("Recent Hashes:", data.hashes);
-  })
-  .catch((error) => {
-      console.error("Error:", error.message);
-  });
+router.get("/recent", (req, res) => {
+   const recentHashes = hashes.slice(-10).reverse(); // Get last 10 hashes
+   res.json(recentHashes);
+});
+
+
 
 
 export default generateHash;
+
+
+
+export default router;
