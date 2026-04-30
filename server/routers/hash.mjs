@@ -139,8 +139,4 @@ router.get("/recent", (req, res) => {
 
 
 
-export default generateHash;
-
-
-
-export default router;
+export default { generateHash, router };
