@@ -3,6 +3,11 @@ const router = express.Router();
 
 const content = []; // In-memory storage for content
 
+// GET /content/test – Test endpoint to verify the content router is working
+router.get("/test", (req, res) => {
+    res.json({ message: "Content router is working!" });
+});
+
 //POST /content – Uploads content
 router.post("/", (req, res) => {
     const newContent = {
