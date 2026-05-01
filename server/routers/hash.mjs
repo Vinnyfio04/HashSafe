@@ -1,5 +1,3 @@
-//coded by Zach Gleiter
-
 import crypto from 'crypto';
 import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
@@ -42,7 +40,7 @@ router.get("/:id", (req, res) => {
 });
 
 
-// // GET /hash/content/:contentId – Gets hashes for content
+// GET /hash/content/:contentId – Gets hashes for content
 router.get("/content/:contentId", (req, res) => {
    const hashRecord = hashes.filter(h => h.contentID === Number(req.params.contentId));
     if (!hashRecord) return res.status(404).json({ error: "Hash not found" });
@@ -92,11 +90,11 @@ router.get("/type/:type", (req, res) => {
 
 // DELETE /hash/:id – Deletes a hash
 router.delete("/:id", (req, res) => {
-   const index = hashes.findIndex(h => h.id === req.params.id);
-   if (index === -1) {
+   const idx = hashes.findIndex(h => h.id === req.params.id);
+   if (idx === -1) {
        return res.status(404).json({ error: "Hash not found" });
    }
-   const deletedHash = hashes.splice(index, 1)[0]; // Remove from array and get deleted record
+   const deletedHash = hashes.splice(idx, 1)[0]; // Remove from array and get deleted record
    res.json({ message: "Deleted successfully", hash: deletedHash });
 });
 

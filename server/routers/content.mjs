@@ -7,7 +7,14 @@ const app = express();
 app.use(express.json()); // parse incoming JSON request bodies
 
 //POST /content – Uploads content
-
+router.post("/", (req, res) => {
+    const newContent = {
+        contentID: Date.now(),...req.body 
+    };
+    
+    content.push(newContent);
+    res.status(201).json(newContent);
+});
 
 
 // GET /content – Lists all content (many)
@@ -27,15 +34,29 @@ router.get("/:id", async (req, res) => {
 
 
 // PUT /content/:id – Updates a content 
-
+router.put("/:id", (req, res) => {
+    const item = content.find(h => h.contentID === Number(req.params.id));
+    if (!item) return res.status(404).json({ error: "Content not found" });
+    Object.assign(item, req.body);
+    res.json(item);
+});
 
 
 // DELETE /content/:id – Deletes a content 
-
+router.delete("/:id", (req, res) => {
+    const idx = content.findIndex(h => h.contentID === Number(req.params.id));
+    if (idx === -1) return res.status(404).json({ error: "Not found" });
+    const removed = content.splice(idx, 1)[0];
+    res.json(removed);
+});
 
 
 // POST /content/batch – Uploads multiple files
-
+router.post("/batch", (req, res) => {
+    const items = req.body.map(item => ({ contentID: Date.now() + Math.random(), ...item }));
+    content.push(...items);
+    res.status(201).json(items);
+});
 
 
 // GET /content/user/:userId – Get a user’s content
