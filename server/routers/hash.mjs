@@ -43,7 +43,7 @@ router.post("/generate", (req, res) => {
 // GET /hash/content/:contentId – Gets hashes for content
 router.get("/content/:contentId", (req, res) => {
    const hashRecord = hashes.filter(h => h.contentID === (req.params.contentId));
-    if (!hashRecord) return res.status(404).json({ error: "Hash not found" });
+    if (!hashRecord.length) return res.status(404).json({ error: "Hash not found" });
    res.json(hashRecord);
 });
 
@@ -81,7 +81,7 @@ router.post("/batch", (req, res) => {
 // GET /hash/type/:type – Filters by hash type
 router.get("/type/:type", (req, res) => {
    const hashRecords = hashes.filter(h => h.type === String(req.params.type));
-      if (!hashRecord) return res.status(404).json({ error: "Hash not found" });
+      if (!hashRecords.length) return res.status(404).json({ error: "Hash not found" });
    res.json(hashRecords);
 });
 
@@ -125,16 +125,13 @@ router.get("/stats", (req, res) => {
 
 
 
-
-
 // GET /hash/recent – Get recent hashes
 router.get("/recent", (req, res) => {
    const recentHashes = hashes.slice(-10).reverse(); 
-    if (!recentHashes) return res.status(404).json({ error: "Hash not found" });
+    if (!recentHashes.length) return res.status(404).json({ error: "Hash not found" });
    res.json(recentHashes);
 });
 
 
-
-
-export default { generateHash, router };
+export { generateHash };
+export default router;

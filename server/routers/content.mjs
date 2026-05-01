@@ -30,10 +30,10 @@ router.get("/:id", async (req, res) => {
 
 // PUT /content/:id – Updates a content 
 router.put("/:id", (req, res) => {
-    const item = content.find(h => h.contentID === Number(req.params.id));
-    if (!item) return res.status(404).json({ error: "Content not found" });
-    Object.assign(item, req.body);
-    res.json(item);
+    const idx = content.findIndex(h => h.contentID === Number(req.params.id));
+    if (idx === -1) return res.status(404).json({ error: "Content not found" });
+    content[idx] = { contentID: Number(req.params.id), ...req.body };
+    res.json(content[idx]);
 });
 
 

@@ -2,7 +2,6 @@ import express from 'express';
 const router = express.Router();
 
 import content from "../data/content.mjs";
-import e from 'express';
 
 
 // GET /stats/content/type – Gets a content count for each type (photo/video) TAB
