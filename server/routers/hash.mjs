@@ -1,3 +1,5 @@
+//coded by Zach Gleiter
+
 import crypto from 'crypto';
 import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
@@ -34,31 +36,26 @@ router.post("/generate", (req, res) => {
 
 // GET /hash/:id – Gets a hash record
 router.get("/:id", (req, res) => {
-   const hashRecord = hashes.find(h => h.id === req.params.id);
-   if (!hashRecord) {
-       return res.status(404).json({ error: "Hash not found" });
-   }
+   const hashRecord = hashes.find(h => h.id === Number(req.params.id));
+   if (!hashRecord) return res.status(404).json({ error: "Hash not found" });
    res.json(hashRecord);
 });
 
 
 // // GET /hash/content/:contentId – Gets hashes for content
 router.get("/content/:contentId", (req, res) => {
-   const hashRecords = hashes.filter(h => h.contentID === req.params.contentId);
-   res.json(hashRecords);
+   const hashRecord = hashes.filter(h => h.contentID === Number(req.params.contentId));
+    if (!hashRecord) return res.status(404).json({ error: "Hash not found" });
+   res.json(hashRecord);
 });
 
 
 // GET /hash/:id – Gets a hash record
 router.get("/:id", (req, res) => {
-   const hashRecord = hashes.find(h => h.id === req.params.id);
-   if (!hashRecord) {
-       return res.status(404).json({ error: "Hash not found" });
-   }
+   const hashRecord = hashes.find(h => h.id === Number(req.params.id));
+   if (!hashRecord) return res.status(404).json({ error: "Hash not found" });
    res.json(hashRecord);
 });
-
-
 
 
 // POST /hash/batch – Hashes several items at a time
@@ -85,7 +82,8 @@ router.post("/batch", (req, res) => {
 
 // GET /hash/type/:type – Filters by hash type
 router.get("/type/:type", (req, res) => {
-   const hashRecords = hashes.filter(h => h.type === req.params.type);
+   const hashRecords = hashes.filter(h => h.type === String(req.params.type));
+      if (!hashRecord) return res.status(404).json({ error: "Hash not found" });
    res.json(hashRecords);
 });
 
@@ -107,10 +105,8 @@ router.delete("/:id", (req, res) => {
 
 // GET /hash/:hash/value – Search by hash value
 router.get("/:hash/value", (req, res) => {
-   const hashRecord = hashes.find(h => h.hash === req.params.hash);
-   if (!hashRecord) {
-       return res.status(404).json({ error: "Hash not found" });
-   }
+   const hashRecord = hashes.find(h => h.hash === Number(req.params.hash))
+   if (!hashRecord)return res.status(404).json({ error: "Hash not found" });
    res.json(hashRecord);
 });
 
@@ -120,19 +116,23 @@ router.get("/:hash/value", (req, res) => {
 // GET /hash/stats – Get hash statistics
 router.get("/stats", (req, res) => {
    const totalHashes = hashes.length;
-   const typesCount = {};
-   hashes.forEach(h => {
-       typesCount[h.type] = (typesCount[h.type] || 0) + 1;
-   });
+
+   const typesCount = hashes.reduce((acc, h) => {
+       acc[h.type] = (acc[h.type] || 0) + 1;
+       return acc;
+   }, {});
+
    res.json({ totalHashes, typesCount });
 });
 
 
 
 
+
 // GET /hash/recent – Get recent hashes
 router.get("/recent", (req, res) => {
-   const recentHashes = hashes.slice(-10).reverse(); // Get last 10 hashes
+   const recentHashes = hashes.slice(-10).reverse(); 
+    if (!hashRecord) return res.status(404).json({ error: "Hash not found" });
    res.json(recentHashes);
 });
 
