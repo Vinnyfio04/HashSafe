@@ -19,11 +19,7 @@ router.delete("/:id", async (req, res) => {
 // PUT /users/:id – Updates a user
 router.put("/:id", async (req, res) => {
     try {
-      const user = await User.findByIdAndUpdate(
-        req.params.id,
-        { $set: req.body },
-        { new: true } // return the updated doc, not the old one
-      );
+      const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
       if (!user) return res.status(404).json({ error: "Not found" });
       res.json(user);
     } catch (err) {

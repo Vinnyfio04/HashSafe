@@ -1,10 +1,7 @@
 import express from "express";
-import connectDB from "../config/db.js";
 const router = express.Router();
-import generateHash from '../utils/hashGenerator.js';
 
-const app = express();
-app.use(express.json()); // parse incoming JSON request bodies
+const content = []; // In-memory storage for content
 
 //POST /content – Uploads content
 router.post("/", (req, res) => {
@@ -19,9 +16,7 @@ router.post("/", (req, res) => {
 
 // GET /content – Lists all content (many)
 router.get("/", async (req, res) => {
-    const item = content.find(h => h.contentID === Number(req.params.id));
-    if (!item) return res.status(404).json({ error: "Content not found" });
-    res.json(item);
+    res.json(content);
 });
 
 

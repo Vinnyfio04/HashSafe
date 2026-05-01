@@ -1,5 +1,8 @@
-import router from "./users.mjs";
+import express from 'express';
+const router = express.Router();
 
+import content from "../data/content.mjs";
+import e from 'express';
 
 
 // GET /stats/content/type – Gets a content count for each type (photo/video) TAB
@@ -24,3 +27,5 @@ router.get("/recent/uploads", async (req, res) => {
    if (recentContent.length === 0) return res.status(404).json({ error: "No recent content found" });
    res.json(recentContent);
 });
+
+export default router;
