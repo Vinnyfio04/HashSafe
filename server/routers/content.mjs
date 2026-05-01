@@ -20,6 +20,43 @@ router.get("/", async (req, res) => {
 });
 
 
+// GET /content/recent – Gets recently uploaded contents, TAB
+router.get("/recent", async (req, res) => {
+    const recentContent = content.filter(h => {
+        const uploadDate = new Date(h.uploadDate);
+        const now = new Date();
+        const diffTime = Math.abs(now - uploadDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays <= 7; // Assuming "recent" means within the last 7 days
+    });
+    if (recentContent.length === 0) return res.status(404).json({ error: "No recent content found" });
+    res.json(recentContent);
+});
+
+
+// GET /content/search?q= – Searches contents, queries (q=)
+router.get("/search", (req, res) => {
+    const query = req.query.q;
+
+    if (!query) return res.status(400).json({ error: "Query required" });
+
+    const searchResults = content.filter(h => h.name.includes(query) || h.description.includes(query));
+
+    if (searchResults.length === 0) {
+         return res.status(404).json({ error: "No results found" });
+    }
+
+    res.json(searchResults);
+});
+
+
+// GET /content/metadata – Gets metadata for all of the content
+router.get("/metadata", async (req, res) => {
+    const allMetadata = content.map(h => h.metadata);
+    res.json(allMetadata);
+});
+
+
 // GET /content/:id – Gets a content details 
 router.get("/:id", async (req, res) => {
     const item = content.find(h => h.contentID === Number(req.params.id));
@@ -54,7 +91,7 @@ router.post("/batch", (req, res) => {
 });
 
 
-// GET /content/user/:userId – Get a user’s content
+// GET /content/user/:userId – Get a user's content
 router.get("/user/:userId", async (req, res) => {
     const userContent = content.filter(h => h.userID === Number(req.params.userId));
     if (userContent.length === 0) return res.status(404).json({ error: "No content found for this user" });
@@ -67,36 +104,6 @@ router.get("/type/:type", async (req, res) => {
     const typeContent = content.filter(h => h.type === String(req.params.type));
     if (typeContent.length === 0) return res.status(404).json({ error: "No content found for this type" });
     res.json(typeContent);
-});
-
-
-// GET /content/recent – Gets recently uploaded contents, TAB
-router.get("/recent", async (req, res) => {
-    const recentContent = content.filter(h => {
-        const uploadDate = new Date(h.uploadDate);
-        const now = new Date();
-        const diffTime = Math.abs(now - uploadDate);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays <= 7; // Assuming "recent" means within the last 7 days
-    });
-    if (recentContent.length === 0) return res.status(404).json({ error: "No recent content found" });
-    res.json(recentContent);
-});
-
-
-// GET /content/search?q= – Searches contents, queries (q=)
-router.get("/search", (req, res) => {
-    const query = req.query.q;
-
-    if (!query) return res.status(400).json({ error: "Query required" });
-
-    const searchResults = content.filter(h => h.name.includes(query) || h.description.includes(query));
-
-    if (searchResults.length === 0) {
-         return res.status(404).json({ error: "No results found" });
-    }
-
-    res.json(searchResults);
 });
 
 
@@ -113,13 +120,6 @@ router.get("/:id/metadata", async (req, res) => {
     const item = content.find(h => h.contentID === Number(req.params.id));
     if (!item) return res.status(404).json({ error: "Content not found" });
     res.json(item.metadata);
-});
-
-
-// GET /content/metadata – Gets metadata for all of the content
-router.get("/metadata", async (req, res) => {
-    const allMetadata = content.map(h => h.metadata);
-    res.json(allMetadata);
 });
 
 
