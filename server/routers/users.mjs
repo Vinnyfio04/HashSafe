@@ -3,6 +3,11 @@ import User from "../../models/users.model.js";
 const router = express.Router();
 
 //copied from Mongoose and express slides 
+/*
+brew services start mongodb-community@8.0
+brew services list
+brew services stop mongodb-community@8.0
+*/
 
 // DELETE /users/:id – Delete user account
 router.delete("/:id", async (req, res) => {
