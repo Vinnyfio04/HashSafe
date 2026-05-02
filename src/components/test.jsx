@@ -17,6 +17,7 @@ function Test() {
                 console.error('Error:', error)
             }
         }
+        loadMessage()
 
     }, [])
 

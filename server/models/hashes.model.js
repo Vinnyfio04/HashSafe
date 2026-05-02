@@ -38,4 +38,4 @@ const hashSchema = new mongoose.Schema(
 
 const Hash = mongoose.model("Hash", hashSchema);
 
-module.exports = Hash;
+export default Hash;
