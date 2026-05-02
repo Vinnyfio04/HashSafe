@@ -1,7 +1,7 @@
 // .mjs file for ES6 module syntax, different from professors example which uses CommonJS syntax (.js files with require and module.exports)
 import express from "express";
 import cors from "cors";
-import connectDB from "./db.js";
+import connectDB from "./config/db.js";
 import authRouter from "./routers/auth.mjs";
 import usersRouter from "./routers/users.mjs";
 import contentRouter from "./routers/content.mjs";
