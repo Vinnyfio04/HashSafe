@@ -1,5 +1,5 @@
 import express from "express";
-import User from "../../models/users.model.js";
+import User from "../models/users.model.js";
 const router = express.Router();
 
 // POST /auth/register – Creates an account for a user
