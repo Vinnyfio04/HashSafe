@@ -156,9 +156,9 @@ export default function VerifyTab() {
         setGenHash(hex)
       } else {
         if (!textInput.trim()) { setGenError('Please enter some text.'); return }
-        const data = await hashAPI.generate(textInput.trim(), 'sha256')
-        if (data.error) { setGenError(data.error); return }
-        setGenHash(data.hash)
+        const encoded = new TextEncoder().encode(textInput.trim())
+        const hex = await hashBuffer(encoded)
+        setGenHash(hex)
       }
     } catch {
       setGenError('Something went wrong. Try again.')
