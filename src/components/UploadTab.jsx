@@ -139,7 +139,7 @@ export default function UploadTab({ user }) {
           },
         })
 
-        await hashAPI.generate(hashHex, 'sha256')
+        await hashAPI.generate(hashHex, 'sha256', uploaded?.contentID)
 
         updateItem(item.id, {
           status:    'done',
@@ -160,16 +160,18 @@ export default function UploadTab({ user }) {
     setTextResult(null)
     setProcessing(true)
     try {
-      const hashInput = textContent || `${textName}::${textType}::${Date.now()}`
-      const hashData  = await hashAPI.generate(hashInput, 'sha256')
-      if (hashData.error) { setError(hashData.error); return }
-
+      // Upload content first so we have the contentID to link the hash to
       const uploaded = await contentAPI.upload({
         name: textName, description: textDesc, type: textType,
         userID: user?._id, uploadDate: new Date().toISOString(),
         metadata: { name: textName, description: textDesc, type: textType,
                     size: textContent.length, source: 'text-input' },
       })
+
+      const hashInput = textContent || `${textName}::${textType}::${Date.now()}`
+      const hashData  = await hashAPI.generate(hashInput, 'sha256', uploaded?.contentID)
+      if (hashData.error) { setError(hashData.error); return }
+
       setTextResult({ hash: hashData.hash, content: uploaded })
       setTextName(''); setTextDesc(''); setTextContent(''); setTextType('photo')
     } catch {

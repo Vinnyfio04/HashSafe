@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { contentAPI } from '../api'
+import { contentAPI, hashAPI } from '../api'
 
 export default function ContentTab() {
   const [content,  setContent]  = useState([])
@@ -112,6 +112,7 @@ export default function ContentTab() {
                 <th>Description</th>
                 <th>Uploaded</th>
                 <th>Content ID</th>
+                <th>Hash</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -124,15 +125,18 @@ export default function ContentTab() {
                   <td>
                     <span className={`badge badge-${item.type}`}>{item.type || '—'}</span>
                   </td>
-                  <td style={{ maxWidth: '200px', color: 'var(--text)' }}>
+                  <td style={{ maxWidth: '160px', color: 'var(--text)' }}>
                     {item.description
-                      ? item.description.length > 40
-                        ? item.description.slice(0, 40) + '…'
+                      ? item.description.length > 36
+                        ? item.description.slice(0, 36) + '…'
                         : item.description
                       : <span style={{ opacity: 0.35 }}>—</span>}
                   </td>
                   <td style={{ fontSize: '12px' }}>{formatDate(item.uploadDate)}</td>
                   <td><span className="mono">{String(item.contentID).slice(0, 12)}</span></td>
+                  <td>
+                    <CopyHashButton contentId={item.contentID} />
+                  </td>
                   <td>
                     <button className="btn-danger" onClick={() => handleDelete(item.contentID)}>
                       Delete
@@ -148,15 +152,137 @@ export default function ContentTab() {
   )
 }
 
+// ── CopyHashButton ────────────────────────────────────────────────────────────
+// Fetches the hash for a content item on first click, then copies it.
+// States: idle → loading → copied / error
+
+function CopyHashButton({ contentId }) {
+  const [state, setState] = useState('idle')   // idle | loading | copied | error
+  const [hash,  setHash]  = useState(null)
+  const [tip,   setTip]   = useState(false)    // tooltip visible
+
+  async function handleClick() {
+    // If we already have the hash just copy it again
+    if (hash) {
+      navigator.clipboard.writeText(hash)
+      setState('copied')
+      setTimeout(() => setState('idle'), 2000)
+      return
+    }
+
+    setState('loading')
+    try {
+      const data = await hashAPI.getByContentId(contentId)
+      // The endpoint returns an array of hash records
+      const record = Array.isArray(data) ? data[0] : data
+      if (!record || !record.hash) {
+        setState('error')
+        setTimeout(() => setState('idle'), 2500)
+        return
+      }
+      setHash(record.hash)
+      navigator.clipboard.writeText(record.hash)
+      setState('copied')
+      setTimeout(() => setState('idle'), 2000)
+    } catch {
+      setState('error')
+      setTimeout(() => setState('idle'), 2500)
+    }
+  }
+
+  const label = {
+    idle:    'Copy Hash',
+    loading: <span className="spinner" style={{ width: '12px', height: '12px' }} />,
+    copied:  '✓ Copied',
+    error:   'No Hash Found',
+  }[state]
+
+  const btnStyle = {
+    ...styles.copyBtn,
+    ...(state === 'copied' ? styles.copyBtnCopied  : {}),
+    ...(state === 'error'  ? styles.copyBtnError   : {}),
+    ...(state === 'loading' ? { opacity: 0.7, cursor: 'default' } : {}),
+  }
+
+  return (
+    <div style={{ position: 'relative', display: 'inline-block' }}
+         onMouseEnter={() => hash && setTip(true)}
+         onMouseLeave={() => setTip(false)}>
+      <button
+        onClick={handleClick}
+        disabled={state === 'loading'}
+        style={btnStyle}
+      >
+        {label}
+      </button>
+
+      {/* Tooltip showing truncated hash on hover after first fetch */}
+      {tip && hash && (
+        <div style={styles.tooltip}>
+          {hash.slice(0, 20)}…{hash.slice(-8)}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Styles ────────────────────────────────────────────────────────────────────
+
 const styles = {
-  wrap: { display: 'flex', flexDirection: 'column', gap: '20px' },
-  topRow: { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' },
-  title: { fontSize: '22px', fontWeight: 700 },
-  sub: { fontSize: '14px', color: 'var(--text)', margin: '4px 0 0' },
+  wrap:    { display: 'flex', flexDirection: 'column', gap: '20px' },
+  topRow:  { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' },
+  title:   { fontSize: '22px', fontWeight: 700 },
+  sub:     { fontSize: '14px', color: 'var(--text)', margin: '4px 0 0' },
   refreshBtn: { padding: '8px 16px', fontSize: '13px', flexShrink: 0 },
-  searchRow: { display: 'flex', gap: '10px' },
+  searchRow:  { display: 'flex', gap: '10px' },
   loadingRow: {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     gap: '10px', padding: '48px',
+  },
+
+  copyBtn: {
+    fontFamily: 'var(--font-ui)',
+    fontSize: '11px',
+    fontWeight: 700,
+    letterSpacing: '0.04em',
+    cursor: 'pointer',
+    padding: '5px 12px',
+    borderRadius: '6px',
+    border: '1px solid rgba(0,232,198,0.3)',
+    background: 'var(--accent-dim)',
+    color: 'var(--accent)',
+    transition: 'all 0.15s',
+    whiteSpace: 'nowrap',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '5px',
+  },
+  copyBtnCopied: {
+    background: 'var(--success-dim)',
+    border: '1px solid rgba(34,217,122,0.3)',
+    color: 'var(--success)',
+  },
+  copyBtnError: {
+    background: 'var(--danger-dim)',
+    border: '1px solid rgba(255,78,106,0.3)',
+    color: 'var(--danger)',
+  },
+
+  tooltip: {
+    position: 'absolute',
+    bottom: 'calc(100% + 6px)',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    background: 'var(--surface-3)',
+    border: '1px solid var(--border-2)',
+    borderRadius: '6px',
+    padding: '5px 10px',
+    fontSize: '11px',
+    fontFamily: 'var(--font-mono)',
+    color: 'var(--accent-text)',
+    whiteSpace: 'nowrap',
+    pointerEvents: 'none',
+    zIndex: 10,
+    boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
   },
 }

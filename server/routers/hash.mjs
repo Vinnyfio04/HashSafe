@@ -17,14 +17,14 @@ function generateHash(data) {
 
 // POST /hash/generate – Generates a hash
 router.post("/generate", (req, res) => {
-   const { input, type } = req.body;
+   const { input, type, contentId } = req.body;
    if (!input || !type) {
        return res.status(400).json({ error: "Input and type are required" });
    }
    try {
        const hash = generateHash(input);
-       const hashRecord = { id: uuidv4(), hash, type, contentID: null };
-       hashes.push(hashRecord); // Store the hash record in memory
+       const hashRecord = { id: uuidv4(), hash, type, contentID: contentId || null };
+       hashes.push(hashRecord); 
        res.json({ hash });
    } catch (err) {
        res.status(500).json({ error: err.message });
