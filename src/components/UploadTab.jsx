@@ -3,19 +3,16 @@ import { contentAPI, hashAPI } from '../api'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-async function hashBuffer(buffer) {
-  const hashBuf = await crypto.subtle.digest('SHA-256', buffer)
-  return Array.from(new Uint8Array(hashBuf))
-    .map(b => b.toString(16).padStart(2, '0'))
-    .join('')
-}
-
-function readFileAsBuffer(file) {
+function readFileAsBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
-    reader.onload  = e => resolve(e.target.result)
+    reader.onload = e => {
+      const dataUrl = e.target.result || ''
+      const base64 = String(dataUrl).split(',')[1] || ''
+      resolve(base64)
+    }
     reader.onerror = () => reject(new Error('Failed to read file'))
-    reader.readAsArrayBuffer(file)
+    reader.readAsDataURL(file)
   })
 }
 
@@ -97,7 +94,7 @@ export default function UploadTab({ user }) {
     setError('')
   }
 
-  function updateItem(id, patch) {
+  function updateItem(id, patch) { 
     setQueue(q => q.map(item => item.id === id ? { ...item, ...patch } : item))
   }
 
@@ -123,8 +120,7 @@ export default function UploadTab({ user }) {
     for (const item of pending) {
       updateItem(item.id, { status: 'hashing' })
       try {
-        const buffer  = await readFileAsBuffer(item.file)
-        const hashHex = await hashBuffer(buffer)
+        const fileBase64 = await readFileAsBase64(item.file)
 
         const uploaded = await contentAPI.upload({
           name:       item.name,
@@ -139,11 +135,12 @@ export default function UploadTab({ user }) {
           },
         })
 
-        await hashAPI.generate(hashHex, 'sha256', uploaded?.contentID)
+        const hashData = await hashAPI.generate(fileBase64, 'sha256', 'base64')
+        if (hashData.error) throw new Error(hashData.error)
 
         updateItem(item.id, {
           status:    'done',
-          hash:      hashHex,
+          hash:      hashData.hash,
           contentId: uploaded?.contentID ?? null,
         })
       } catch {

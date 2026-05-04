@@ -29,10 +29,10 @@ export const authAPI = {
 
 // ── Hash ──────────────────────────────────────────────────────────────
 export const hashAPI = {
-  generate: (input, type = 'sha256') =>
+  generate: (input, type = 'sha256', inputEncoding = 'utf8') =>
     request('/hash/generate', {
       method: 'POST',
-      body: JSON.stringify({ input, type }),
+      body: JSON.stringify({ input, type, inputEncoding }),
     }),
 
   batch: (items) =>

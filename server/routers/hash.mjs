@@ -9,20 +9,22 @@ const router = express.Router();
 const hashes = []; // In-memory storage for hashes
 
 
-function generateHash(data) {
-   return crypto.createHash
-   ('sha256').update(data).digest('hex');
+function generateHash(data, inputEncoding = 'utf8') {
+   const source = inputEncoding === 'base64' ? Buffer.from(data, 'base64') : data;
+   
+   return crypto.createHash('sha256')
+   .update(source).digest('hex');
 }
 
 
 // POST /hash/generate – Generates a hash
 router.post("/generate", (req, res) => {
-   const { input, type, contentId } = req.body;
+   const { input, type, contentId, inputEncoding } = req.body;
    if (!input || !type) {
        return res.status(400).json({ error: "Input and type are required" });
    }
    try {
-       const hash = generateHash(input);
+       const hash = generateHash(input, inputEncoding || 'utf8');
        const hashRecord = { id: uuidv4(), hash, type, contentID: contentId || null };
        hashes.push(hashRecord); 
        res.json({ hash });
