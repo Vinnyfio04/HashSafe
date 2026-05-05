@@ -14,3 +14,8 @@ How to run:
 
 Run front end (react): "npm run dev"
 Run server: "npm run server"
+
+Required dependencies:
+
+npm install
+docker run -d --name hashsafe-mongo -p 27017:27017 mongo:7
