@@ -1,3 +1,5 @@
+// Used express-slide.html for reference.
+
 // .mjs file for ES6 module syntax, different from professors example which uses CommonJS syntax (.js files with require and module.exports)
 import express from "express";
 import cors from "cors";
