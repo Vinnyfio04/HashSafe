@@ -1,3 +1,5 @@
+// Used mongoose slides
+
 import mongoose from "mongoose";
 
 const hashSchema = new mongoose.Schema(
